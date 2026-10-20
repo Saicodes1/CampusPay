@@ -1,0 +1,99 @@
+name: campuspay
+x-db: &db
+  image: postgres:16-alpine
+  environment:
+    POSTGRES_USER: campuspay
+    POSTGRES_PASSWORD: campuspay-local-only
+    POSTGRES_DB: campuspay
+  healthcheck:
+    test: [CMD-SHELL, "pg_isready -U campuspay -d campuspay"]
+    interval: 2s
+    timeout: 3s
+    retries: 30
+x-rabbit: &rabbit
+  image: rabbitmq:4.1-management-alpine
+  environment:
+    RABBITMQ_DEFAULT_USER: campuspay
+    RABBITMQ_DEFAULT_PASS: campuspay-local-only
+  healthcheck:
+    test: [CMD, rabbitmq-diagnostics, -q, ping]
+    interval: 5s
+    timeout: 5s
+    retries: 30
+x-redis: &redis
+  image: redis:7.4-alpine
+  healthcheck:
+    test: [CMD, redis-cli, ping]
+    interval: 2s
+    timeout: 3s
+    retries: 30
+x-app: &app
+  build: .
+  environment: &app-env
+    CAMPUSPAY_HOST: 0.0.0.0
+    CAMPUSPAY_METRICS_HOST: 0.0.0.0
+    CAMPUSPAY_DATABASE_URL: postgresql://campuspay:campuspay-local-only@db:5432/campuspay
+    CAMPUSPAY_REDIS_URL: redis://redis:6379/0
+    CAMPUSPAY_RABBIT_URL: amqp://campuspay:campuspay-local-only@rabbit:5672/%2F
+    CAMPUSPAY_DEMO_PASSWORD: ${CAMPUSPAY_DEMO_PASSWORD:-campuspay-demo-only}
+    CAMPUSPAY_WEBHOOK_URL: http://receiver:8090/events
+    CAMPUSPAY_WEBHOOK_SECRET: ${CAMPUSPAY_WEBHOOK_SECRET:-campuspay-webhook-demo-only-32chars}
+  depends_on:
+    db: {condition: service_healthy}
+    redis: {condition: service_healthy}
+    rabbit: {condition: service_healthy}
+  restart: unless-stopped
+services:
+  db:
+    <<: *db
+    ports: ["127.0.0.1:55432:5432"]
+    volumes: ["postgres-data:/var/lib/postgresql/data"]
+  redis:
+    <<: *redis
+    ports: ["127.0.0.1:56379:6379"]
+  rabbit:
+    <<: *rabbit
+    ports: ["127.0.0.1:5673:5672", "127.0.0.1:15673:15672"]
+    volumes: ["rabbit-data:/var/lib/rabbitmq"]
+  api:
+    <<: *app
+    command: ["uv", "run", "--locked", "--no-dev", "--no-sync", "python", "-m", "campuspay.main"]
+    ports: ["127.0.0.1:8080:8080"]
+    healthcheck:
+      test: [CMD, /app/.venv/bin/python, -c, "import urllib.request; urllib.request.urlopen('http://localhost:8080/health/ready', timeout=3)"]
+      interval: 5s
+      timeout: 4s
+      retries: 20
+  worker:
+    <<: *app
+    command: ["uv", "run", "--locked", "--no-dev", "--no-sync", "python", "-m", "campuspay.workers"]
+    ports: ["127.0.0.1:9100:9100"]
+  receiver:
+    build: .
+    command: ["uv", "run", "--locked", "--no-dev", "--no-sync", "python", "-m", "campuspay.receiver"]
+    environment:
+      CAMPUSPAY_WEBHOOK_SECRET: ${CAMPUSPAY_WEBHOOK_SECRET:-campuspay-webhook-demo-only-32chars}
+      RECEIVER_DATABASE: /data/inbox.sqlite
+    ports: ["127.0.0.1:8090:8090"]
+    volumes: ["receiver-data:/data"]
+  test-db:
+    <<: *db
+    profiles: [test]
+    environment:
+      POSTGRES_USER: campuspay
+      POSTGRES_PASSWORD: campuspay-local-only
+      POSTGRES_DB: campuspay_test
+    ports: ["127.0.0.1:55433:5432"]
+    tmpfs: ["/var/lib/postgresql/data"]
+  test-redis:
+    <<: *redis
+    profiles: [test]
+    ports: ["127.0.0.1:56380:6379"]
+  test-rabbit:
+    <<: *rabbit
+    profiles: [test]
+    ports: ["127.0.0.1:5674:5672"]
+volumes:
+  postgres-data:
+  rabbit-data:
+  receiver-data:

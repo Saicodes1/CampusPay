@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0f766e">
+  <meta name="description" content="CampusPay student wallet. Manage simulated campus payments and transfers.">
+  <title>CampusPay · Student wallet</title>
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/styles.css">
+  <script type="module" src="/assets/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <section id="login-view" class="login-view">
+    <div class="login-brand"><span class="brand-mark" aria-hidden="true">c</span><span>CampusPay</span></div>
+    <main class="login-panel">
+      <h1>Your student wallet</h1>
+      <p class="muted">Pay on campus, send money to a friend, and keep track of your spending.</p>
+      <form id="login-form">
+        <label for="login-account">Student account</label>
+        <select id="login-account" autocomplete="username"><option value="alice">Alice Student</option><option value="bob">Bob Student</option></select>
+        <label for="login-password">Password</label>
+        <input id="login-password" type="password" autocomplete="current-password" required value="campuspay-demo-only">
+        <p class="field-note">Demo password: <code>campuspay-demo-only</code></p>
+        <p id="login-error" class="form-error" role="alert" hidden></p>
+        <button id="login-submit" class="button primary wide" type="submit">Sign in</button>
+      </form>
+      <div class="login-disclaimer"><strong>A demo, with no real money.</strong><p>All balances, purchases and transfers are simulated. No bank account or card is connected.</p></div>
+    </main>
+    <p class="login-footer">CampusPay · University wallet demo</p>
+  </section>
+
+  <div id="app-view" class="app-layout" hidden>
+    <aside class="sidebar" aria-label="Student navigation">
+      <a href="#overview" class="brand"><span class="brand-mark" aria-hidden="true">c</span><span>CampusPay</span></a>
+      <nav id="navigation" aria-label="Main navigation">
+        <a href="#overview" class="nav-link active" data-page="overview"><svg aria-hidden="true"><use href="/assets/icons.svg#overview"/></svg>Overview</a>
+        <a href="#activity" class="nav-link" data-page="activity"><svg aria-hidden="true"><use href="/assets/icons.svg#activity"/></svg>Activity</a>
+        <a href="#payments" class="nav-link" data-page="payments"><svg aria-hidden="true"><use href="/assets/icons.svg#shop"/></svg>Campus payments</a>
+        <a href="#account" class="nav-link" data-page="account"><svg aria-hidden="true"><use href="/assets/icons.svg#user"/></svg>Your account</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <p class="demo-note"><svg aria-hidden="true"><use href="/assets/icons.svg#shield"/></svg>Simulated funds only</p>
+        <div class="student-summary"><span id="student-initial" class="avatar">A</span><div><strong id="student-name">Student</strong><span>Student account</span></div></div>
+        <button id="sign-out" class="button text-button"><svg aria-hidden="true"><use href="/assets/icons.svg#logout"/></svg>Sign out</button>
+      </div>
+    </aside>
+    <div class="workspace">
+      <header class="topbar"><span>Student wallet</span><div><span id="last-updated" class="muted"></span><button id="refresh" class="button small"><svg aria-hidden="true"><use href="/assets/icons.svg#refresh"/></svg>Refresh</button></div></header>
+      <main id="main" tabindex="-1">
+        <div id="notification" class="notice" role="status" aria-live="polite" hidden><span id="notification-text"></span><button id="dismiss-notice" aria-label="Dismiss notification">×</button></div>
+        <div id="pending-banner" class="pending-banner" role="alert" hidden><div><strong>A payment needs confirmation</strong><p id="pending-summary">Your last request may have gone through. Retry the same request to check safely.</p></div><button id="retry-pending" class="button">Check payment</button></div>
+        <div id="load-error" class="error-banner" role="alert" hidden></div>
+
+        <section id="page-overview" class="page" aria-labelledby="overview-heading">
+          <div class="page-heading"><div><h1 id="overview-heading">My wallet</h1><p>Your balance and recent campus spending.</p></div><span class="demo-label">Demo account</span></div>
+          <div class="overview-grid">
+            <section class="panel balance-panel" aria-label="Wallet balance">
+              <div class="balance-label"><span>Available balance</span><span class="currency">USD</span></div>
+              <p id="available-balance" class="balance-value">—</p>
+              <div class="balance-breakdown"><div><span>Total balance</span><strong id="total-balance">—</strong></div><div><span>Reserved for payments</span><strong id="reserved-balance">—</strong></div></div>
+              <div class="action-row"><button class="button primary" data-action="fund" data-mutates><svg aria-hidden="true"><use href="/assets/icons.svg#plus"/></svg>Add demo funds</button><button class="button" data-action="transfer" data-mutates><svg aria-hidden="true"><use href="/assets/icons.svg#send"/></svg>Send money</button></div>
+              <p class="field-note">Reserved funds become available when an authorization is cancelled or released.</p>
+            </section>
+            <section class="panel campus-panel"><div class="section-heading"><h2>Pay on campus</h2><svg aria-hidden="true"><use href="/assets/icons.svg#shop"/></svg></div><p class="muted">Try a purchase at a demo campus merchant.</p><div id="merchant-shortcuts"></div><a href="#payments" class="inline-link">Browse campus shop <span aria-hidden="true">→</span></a></section>
+          </div>
+          <section class="panel holds-panel" id="overview-holds" hidden><div class="section-heading"><div><h2>Awaiting merchant capture</h2><p class="muted">These amounts are reserved, but have not been spent.</p></div></div><div id="holds-list"></div></section>
+          <section class="panel activity-panel"><div class="section-heading"><h2>Recent activity</h2><a href="#activity" class="inline-link">View all activity <span aria-hidden="true">→</span></a></div><div id="recent-activity"></div></section>
+          <p class="page-footnote">All amounts are in USD. CampusPay does not process real money.</p>
+        </section>
+
+        <section id="page-activity" class="page" aria-labelledby="activity-heading" hidden>
+          <div class="page-heading"><div><h1 id="activity-heading">Activity</h1><p>Money added, payments, transfers and refunds.</p></div></div>
+          <section class="panel activity-panel"><div class="activity-controls"><label class="search-field" for="activity-search"><svg aria-hidden="true"><use href="/assets/icons.svg#search"/></svg><input id="activity-search" type="search" placeholder="Search loaded transactions" aria-label="Search loaded transactions"></label><select id="activity-filter" aria-label="Filter transactions"><option value="all">All transactions</option><option value="FUNDING">Added funds</option><option value="CAPTURE">Payments</option><option value="TRANSFER">Transfers</option><option value="REFUND">Refunds</option></select></div><div id="all-activity"></div><div class="load-more-row"><button id="load-more" class="button" hidden>Load older activity</button></div></section>
+        </section>
+
+        <section id="page-payments" class="page" aria-labelledby="payments-heading" hidden>
+          <div class="page-heading"><div><h1 id="payments-heading">Campus payments</h1><p>Shop with your wallet or approve a merchant payment request.</p></div><button class="button" data-action="intent" data-mutates><svg aria-hidden="true"><use href="/assets/icons.svg#qr"/></svg>Enter payment code</button></div>
+          <div class="section-heading shop-heading"><h2>Campus shop</h2><span class="muted">Demo purchases · instant payment</span></div><div id="catalog" class="catalog-grid"></div>
+          <section class="panel payment-help"><svg aria-hidden="true"><use href="/assets/icons.svg#qr"/></svg><div><h2>Have a merchant QR code?</h2><p>Paste its payment code to review the merchant and amount before authorizing. The merchant captures the payment separately.</p></div><button class="button" data-action="intent" data-mutates>Enter code</button></section>
+        </section>
+
+        <section id="page-account" class="page" aria-labelledby="account-heading" hidden>
+          <div class="page-heading"><div><h1 id="account-heading">Your account</h1><p>Student wallet details.</p></div></div>
+          <section class="panel account-panel"><h2>Account information</h2><dl><div><dt>Name</dt><dd id="profile-name">—</dd></div><div><dt>Wallet ID</dt><dd id="profile-id">—</dd></div><div><dt>Account type</dt><dd>Student</dd></div><div><dt>Currency</dt><dd>USD · US dollar</dd></div></dl><p class="muted">Alice and Bob are seeded student accounts for this demo.</p></section>
+          <section class="panel account-panel"><h2>About this wallet</h2><p>CampusPay is a university payment demo. Funds, merchant purchases and transfers are simulated. No bank account, debit card or real payment provider is connected.</p><p class="muted">Your password is kept only in this tab’s memory. Signing out or reloading requires you to sign in again.</p></section>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <dialog id="action-dialog" aria-labelledby="dialog-title"><form id="action-form"><header class="dialog-header"><h2 id="dialog-title">Payment</h2><button type="button" class="close-button" data-close aria-label="Close dialog">×</button></header><div id="dialog-body" class="dialog-body"></div><p id="dialog-error" class="form-error" role="alert" hidden></p><footer class="dialog-footer"><button type="button" class="button" data-close>Cancel</button><button id="dialog-submit" class="button primary" type="submit">Continue</button></footer></form></dialog>
+  <noscript><p class="noscript">Enable JavaScript to use the student dashboard. The API documentation is available at <a href="/docs">/docs</a>.</p></noscript>
+</body>
+</html>

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+ <symbol id="overview" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol>
+ <symbol id="activity" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h10"/></symbol>
+ <symbol id="shop" viewBox="0 0 24 24"><path d="M3 10l2-7h14l2 7M4 11v10h16V11M9 21v-7h6v7"/><path d="M3 10c0 3 4 3 4 0 0 3 5 3 5 0 0 3 5 3 5 0 0 3 4 3 4 0"/></symbol>
+ <symbol id="user" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M4 21v-2a8 8 0 0116 0v2"/></symbol>
+ <symbol id="shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-8 9-8 9s-8-4-8-9V6z"/><path d="M8 12l3 3 5-6"/></symbol>
+ <symbol id="logout" viewBox="0 0 24 24"><path d="M9 3H4v18h5M9 12h12m-4-4l4 4-4 4"/></symbol>
+ <symbol id="refresh" viewBox="0 0 24 24"><path d="M20 8a8 8 0 10.4 7M20 3v6h-6"/></symbol>
+ <symbol id="plus" viewBox="0 0 24 24"><path d="M12 4v16M4 12h16"/></symbol>
+ <symbol id="send" viewBox="0 0 24 24"><path d="M21 3L3 10l7 4 4 7 7-18zM10 14L21 3"/></symbol>
+ <symbol id="qr" viewBox="0 0 24 24"><path d="M3 3h6v6H3zM15 3h6v6h-6zM3 15h6v6H3zM15 15h3v3h3v3h-6v-3M21 15h0"/></symbol>
+ <symbol id="search" viewBox="0 0 24 24"><circle cx="10" cy="10" r="6"/><path d="M15 15l6 6"/></symbol>
+ <symbol id="coffee" viewBox="0 0 24 24"><path d="M4 8h12v7a5 5 0 01-5 5H9a5 5 0 01-5-5V8zM16 8h2a3 3 0 010 6h-2M3 22h15M8 2v2M12 2v2"/></symbol>
+ <symbol id="book" viewBox="0 0 24 24"><path d="M4 4h7a3 3 0 013 3v14a4 4 0 00-4-2H4zM14 7a3 3 0 013-3h4v15h-3a4 4 0 00-4 2"/></symbol>
+ <symbol id="arrow-in" viewBox="0 0 24 24"><path d="M18 6L6 18M6 7v11h11"/></symbol>
+ <symbol id="arrow-out" viewBox="0 0 24 24"><path d="M6 18L18 6M7 6h11v11"/></symbol>
+ <symbol id="clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+</svg>

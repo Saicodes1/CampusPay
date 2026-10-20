@@ -1,0 +1,29 @@
+[project]
+name = "campuspay"
+version = "1.0.0"
+description = "A simulated university wallet with reliable payment processing. No real funds."
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi>=0.115,<1", "uvicorn>=0.34,<1", "psycopg[binary,pool]>=3.2,<4",
+  "redis>=5,<7", "pika>=1.3,<2", "httpx>=0.28,<1", "pydantic-settings>=2.7,<3",
+  "prometheus-client>=0.21,<1", "qrcode>=8,<9",
+]
+
+[dependency-groups]
+dev = ["pytest>=8,<10", "pytest-cov>=6,<8", "ruff>=0.11,<1"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+markers = ["integration: requires real PostgreSQL, Redis and RabbitMQ"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+ignore = ["E501", "B008"]
+
+[tool.uv]
+package = false
